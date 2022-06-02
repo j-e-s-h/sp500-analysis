@@ -1,0 +1,22 @@
+# conda env create --file environment.yml
+
+name: sp500analysis
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - invoke
+  - jupyter
+  - jupyterlab
+  - matplotlib
+  - numpy=1.18.5
+  - pandas
+  - pip
+  - plotly
+  - python=3.7
+  - scipy
+  - seaborn
+  - sklearn 
+  - pip:
+    - dcor
