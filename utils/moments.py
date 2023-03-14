@@ -1,3 +1,5 @@
+from utils.correlation_analysis import Correlation_Analysis
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -5,10 +7,11 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 
 
-class Moments:
+class Moments(Correlation_Analysis):
 
-    def __init__(self, corr_matrices):
-        self.corr_matrices = corr_matrices
+    def __init__(self, corr):
+        self.corr_matrices = corr.corr_matrices
+        self.corr_coeff = corr.corr_coeff
         self.df = None
 
     '''
@@ -31,7 +34,8 @@ class Moments:
         df['SKEW'] = pd.Series(skew, index=df.index)
         df['KURT'] = pd.Series(kurt, index=df.index)
         self.df = df
-        return df, acc, std, skew, kurt
+        self.__save_df__()
+        return df
 
     '''
     Different plots:
@@ -45,8 +49,7 @@ class Moments:
     '''
     def get_plot(self, moment1, moment2=None):
         bubbles = [1,44,113]
-        crisis = [54,55,56,57,64,65,66,72,73,74,98,126,127]
-
+        crises = [54,55,56,57,64,65,66,72,73,74,98,126,127]
         if moment1 == 'acc':
             label1 = 'Average Correlation Coefficient'
             array1 = np.array(self.df['ACC'])
@@ -64,11 +67,10 @@ class Moments:
             array1 = np.array(self.df['KURT'])
             color1 = 'purple'
         else: raise ValueError('The compatible values are lists of: acc, std, skew, kurt.')
-
         if moment2 == None:
             fig, ax = plt.subplots(figsize=(14,8), constrained_layout=True)
             ax.plot(array1, marker='x', linewidth=0, markersize=5, color=color1)
-            ax.vlines(x=crisis, color='gray', alpha=0.5, label='Periods with Crises',
+            ax.vlines(x=crises, color='gray', alpha=0.5, label='Periods with Crises',
                        ymin=np.min(array1), ymax=np.max(array1))
             ax.vlines(x=bubbles, color=color1, alpha=0.3, label='Bubble Peak',
                        ymin=np.min(array1), ymax=np.max(array1), linestyles='solid')
@@ -117,6 +119,7 @@ class Moments:
             sns.despine(right=True)
             plt.show()
 
+
     def __matrix_mean__(self, M):
         count = 0
         xsum = 0
@@ -150,3 +153,13 @@ class Moments:
         skew = skew_sum / (count*std**3)
         kurt = kurt_sum / (count*std**4)
         return mean, std, skew, kurt
+    
+    '''Save the moments data for a next code'''
+    def __save_df__(self):
+        if self.corr_coeff == 'pearson' or self.corr_coeff == 'p' or self.corr_coeff == 'P':
+            label = 'pcc'
+        elif self.corr_coeff == 'spearman' or self.corr_coeff == 's' or self.corr_coeff == 'S':
+            label = 'srcc'
+        elif self.corr_coeff == 'distance' or self.corr_coeff == 'd' or self.corr_coeff == 'D':
+            label = 'dcc'
+        self.df.to_csv('../data/processed/'+label+'_moments.csv', index=False)
