@@ -8,7 +8,6 @@ from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FixedLocator, FixedFormatter
-from sklearn.metrics import r2_score
 
 
 class Correlation_Analysis:
@@ -25,14 +24,21 @@ class Correlation_Analysis:
         elif self.corr_coeff == 'spearman':
             C, _ = self.__spearman_corr__(row_returns(self.data_matrix))
         elif self.corr_coeff == 'distance':
-            start_time = time.time()
-            M = row_returns(self.data_matrix)
-            dims = (M.shape[0], M.shape[0])
-            C = np.zeros((dims))
-            for j in range(dims[0]):
-                for k in range(dims[0]):
-                    C[j][k] = self.__distance_corr__(M[j], M[k])
-                print(j, ": --- %s seconds ---" % (time.time() - start_time))
+            try: 
+                C = np.loadtxt('../data/interim/dcc_corr_matrix.txt')
+                print('Distance correlation matrix loaded.')
+            except: 
+                print('There is no distance correlartion matrix saved. \n Calculating...')
+                start_time = time.time()
+                M = row_returns(self.data_matrix)
+                dims = (M.shape[0], M.shape[0])
+                C = np.zeros((dims))
+                for j in range(dims[0]):
+                    for k in range(dims[0]):
+                        C[j][k] = self.__distance_corr__(M[j], M[k])
+                    print(j, ": --- %s seconds ---" % (time.time() - start_time))
+                matrix_reshaped = C.reshape(C.shape[0], -1)
+                np.savetxt('dcc_corr_matrix.txt', matrix_reshaped)
         else:
             raise ValueError('The only compatible correlation coefficients as a string are: pearson, spearman, distance')
         self.__general_heatmap__(C)

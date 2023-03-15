@@ -21,21 +21,31 @@ def row_returns(M):
         returns[i] = (N[i+1]-N[i])/N[i]
     return returns.T
 
+
 '''
 Participation Ratios:
  - input. tensor of k-matrices with N-eigenvectors arrays each
  - output. matrix of k-arrays with the respective participation ratios
 '''
-def participation_ratios(V):
-    dim1 = V.shape[0]
-    dim2 = V.shape[1]
+def participation_ratios(tensor):
+    dim1 = tensor.shape[0]
+    dim2 = tensor.shape[1]
     pr = np.zeros((dim1,dim2))
     for i in range(dim1):
         for j in range(dim2):
-            c = V[i]
+            c = tensor[i]
             C = c[:,j]
             ipr = np.power(np.absolute(C),4).sum()
             pr[i][j] = 1/ipr
+    return pr
+
+'''Participation ratios of a single matrix'''
+def participation_ratios_one(M):
+    pr = np.zeros((M.shape[0]))
+    for j in range(M.shape[0]):
+        C_i = M[:,j]
+        ipr = np.power(np.absolute(C_i),4).sum()
+        pr[j] = 1/ipr
     return pr
 
 
