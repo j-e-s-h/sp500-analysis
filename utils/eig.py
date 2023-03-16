@@ -23,21 +23,20 @@ class Eig(Correlation_Analysis):
             self._eigenvectors.append(eigvec)
         self.pr = participation_ratios(np.array(self._eigenvectors))
 
+    '''Plots for only the the selected epochs'''
     def plots_per_epoch(self, epochs=None, epoch_dates=None):
-        pr = self.pr
-        ipr = 1 / pr 
-        corr_values = self.corr_values
+        ipr = 1 / self.pr
         eigvals = self.eigenvalues
         for i in range(len(self.corr_matrices)):
             print('Epoch: {}     Date Period: {} - {}'.format(str(epochs[i]+1),
                                         str(epoch_dates[int(epochs[i])][0]),
                                         str(epoch_dates[int(epochs[i])][-1])))
             '''Participation ratios plots per epoch'''
-            self.pr_plots(pr[i], ipr[i])
+            self.pr_plots(self.pr[i], ipr[i])
             '''Probability density distribution of correlation coefficients per epoch'''
-            self.correlation_distribution(corr_values[i])
+            self.correlation_distribution(self.corr_values[i])
             '''Probability density distribution of particiátion ratios per epoch'''
-            self.pr_distribution(pr[i])
+            self.pr_distribution(self.pr[i])
             '''Probability density distribution of eigenvalues per epoch'''
             self.eigvals_distribution(eigvals[i])
     
@@ -62,7 +61,7 @@ class Eig(Correlation_Analysis):
         ax2.set_title('Inverse Participation Ratios')
         plt.show()
 
-    '''Distribution of the correlation coefficients of all the matrices'''
+    '''Distribution of the accumulated correlation coefficients of all the matrices'''
     def correlation_distribution(self, corr_values):
         fig, ax = plt.subplots(figsize=(10,6))
         ax.hist(np.array(corr_values).flatten(), bins=100, range=(-1,0.99), density= True, alpha=0.1, color='gray')
@@ -79,7 +78,7 @@ class Eig(Correlation_Analysis):
         sns.despine(right=True)
         plt.show()
     
-    '''Distribution of the pr values of all the matrices'''
+    '''Distribution of the accumulated pr values of all the matrices'''
     def pr_distribution(self, pr):
         fig, ax = plt.subplots(figsize=(10,6))
         ax.hist(pr.flatten(), range=(0,374), alpha=0.7, bins=100, label='Participation Ratios')
@@ -89,7 +88,7 @@ class Eig(Correlation_Analysis):
         sns.despine(right=True)
         plt.show()
 
-    '''Distribution of the eigenvalues of all the matrices'''
+    '''Distribution of the accumulated eigenvalues of all the matrices'''
     def eigvals_distribution(self, eigvals):
         fig = plt.figure(figsize=(10,6))
         ax1 = fig.add_axes([0.1,0.1,0.9,0.9])

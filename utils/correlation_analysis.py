@@ -16,6 +16,9 @@ class Correlation_Analysis:
         self.data_matrix = df.drop(columns=['Ticker'], axis=1).to_numpy()
         self.dates = list(df.drop(columns=['Ticker'], axis=1).columns)
         self.corr_coeff = corr_coeff
+        if self.corr_coeff == 'pearson': self._coeff_label = 'pcc'
+        elif self.corr_coeff == 'spearman': self._coeff_label = 'srcc'
+        elif self.corr_coeff == 'distance': self._coeff_label = 'dcc'
 
     '''Plot a heatmap of the correlation matrix with all the data'''
     def general_correlation_matrix(self):
@@ -25,7 +28,7 @@ class Correlation_Analysis:
             C, _ = self.__spearman_corr__(row_returns(self.data_matrix))
         elif self.corr_coeff == 'distance':
             try: 
-                C = np.loadtxt('../data/interim/dcc_corr_matrix.txt')
+                C = np.loadtxt('../data/processed/dcc/dcc_corr_matrix.txt')
                 print('Distance correlation matrix loaded.')
             except: 
                 print('There is no distance correlartion matrix saved. \n Calculating...')
@@ -38,7 +41,7 @@ class Correlation_Analysis:
                         C[j][k] = self.__distance_corr__(M[j], M[k])
                     print(j, ": --- %s seconds ---" % (time.time() - start_time))
                 matrix_reshaped = C.reshape(C.shape[0], -1)
-                np.savetxt('dcc_corr_matrix.txt', matrix_reshaped)
+                np.savetxt('../data/processed/dcc/dcc_corr_matrix.txt', matrix_reshaped)
         else:
             raise ValueError('The only compatible correlation coefficients as a string are: pearson, spearman, distance')
         self.__general_heatmap__(C)
@@ -50,28 +53,33 @@ class Correlation_Analysis:
     in epochs with 40 working days each, a total of 130 matrix with dimension of 374x40. Finally,
     calculate returns and the correlation matrix per each epoch.
     '''
-    def split_data_correlation(self, corr_coeff='pearson'):
+    def split_data_correlation(self):
         data_epochs = np.array_split(row_returns(self.data_matrix), 130, axis=1)
         dims = (data_epochs[0].shape[0], data_epochs[0].shape[0])
         C = np.zeros((len(data_epochs), dims[0], dims[0]))
-        if corr_coeff == 'pearson':
+        if self.corr_coeff == 'pearson':
             for i in range(len(data_epochs)):
                 C[i,:,:] = self.__pearson_corr__(row_normalization(data_epochs[i]))
-        elif corr_coeff == 'spearman':
+        elif self.corr_coeff == 'spearman':
             for i in range(len(data_epochs)):
                 C[i,:,:], _ = self.__spearman_corr__(data_epochs[i])
-        elif corr_coeff == 'distance':
-            start_time = time.time()
-            dims = (data_epochs[0].shape[0],data_epochs[0].shape[0])
-            C = np.zeros((len(data_epochs),dims[0],dims[0]))
-            for i in range(len(data_epochs)):
-                for j in range(dims[0]):
-                    for k in range(dims[0]):
-                        C[i][j][k] = self.__distance_corr__(data_epochs[i][j],
-                                                        data_epochs[i][k])        
+        elif self.corr_coeff == 'distance':
+            try:
+                loaded_arr = np.loadtxt('../data/processed/dcc/dcc_corr_matrices.txt')
+                C = loaded_arr.reshape(loaded_arr.shape[0], loaded_arr.shape[1] // 374, 374)
+                print('Distance correlation matrices loaded.')
+            except:
+                print('There are no distance correlartion matrices saved. \n Calculating...')
+                start_time = time.time()
+                dims = (data_epochs[0].shape[0],data_epochs[0].shape[0])
+                C = np.zeros((len(data_epochs),dims[0],dims[0]))
+                for i in range(len(data_epochs)):
+                    for j in range(dims[0]):
+                        for k in range(dims[0]):
+                            C[i][j][k] = self.__distance_corr__(data_epochs[i][j], data_epochs[i][k])        
                 print(i, ": --- %s seconds ---" % (time.time() - start_time))
-        else:
-            raise ValueError(f'The only compatible correlation coefficients are: pearson, spearman, distance')
+                arr_reshaped = C.reshape(C.shape[0], -1)
+                np.savetxt('../data/processed/dcc/dcc_corr_matrices.txt', arr_reshaped)
         self.corr_matrices = C
         return C
 
@@ -82,19 +90,19 @@ class Correlation_Analysis:
         * correlation matrices of the selected epcohs
         * dates of all the epochs
     '''
-    def relevant_correlation_matrices(self, relevant_epochs, corr_coeff='pearson'):
+    def relevant_correlation_matrices(self, relevant_epochs):
         dates_epochs = np.array_split(self.dates, 130)
         data_epochs = np.array_split(row_returns(self.data_matrix), 130, axis=1)
         selected_epochs = [data_epochs[x] for x in relevant_epochs]
         dims = (selected_epochs[0].shape[0],selected_epochs[0].shape[0])
         C = np.zeros((len(selected_epochs),dims[0],dims[0]))
-        if corr_coeff == 'pearson':
+        if self.corr_coeff == 'pearson':
             for i in range(len(selected_epochs)):
                 C[i,:,:] = self.__pearson_corr__(row_normalization(selected_epochs[i]))
-        elif corr_coeff == 'spearman':
+        elif self.corr_coeff == 'spearman':
             for i in range(len(selected_epochs)):
                 C[i,:,:], _ = self.__spearman_corr__(selected_epochs[i])
-        elif corr_coeff == 'distance':
+        elif self.corr_coeff == 'distance':
             start_time = time.time()
             for i in range(len(selected_epochs)):
                 for j in range(dims[0]):

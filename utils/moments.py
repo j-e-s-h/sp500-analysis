@@ -12,6 +12,7 @@ class Moments(Correlation_Analysis):
     def __init__(self, corr):
         self.corr_matrices = corr.corr_matrices
         self.corr_coeff = corr.corr_coeff
+        self._coeff_label = corr._coeff_label
         self.df = None
 
     '''
@@ -156,10 +157,4 @@ class Moments(Correlation_Analysis):
     
     '''Save the moments data for a next code'''
     def __save_df__(self):
-        if self.corr_coeff == 'pearson' or self.corr_coeff == 'p' or self.corr_coeff == 'P':
-            label = 'pcc'
-        elif self.corr_coeff == 'spearman' or self.corr_coeff == 's' or self.corr_coeff == 'S':
-            label = 'srcc'
-        elif self.corr_coeff == 'distance' or self.corr_coeff == 'd' or self.corr_coeff == 'D':
-            label = 'dcc'
-        self.df.to_csv('../data/processed/'+label+'_moments.csv', index=False)
+        self.df.to_csv(f'../data/processed/{self._coeff_label}/{self._coeff_label}_moments.csv', index=False)
