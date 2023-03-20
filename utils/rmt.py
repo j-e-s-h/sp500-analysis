@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import scipy
 import seaborn as sns
@@ -9,7 +8,6 @@ class RMT:
     def __init__(self, n=374, t=40):
         self.n = n
         self.t = t
-
 
     '''Ensemble construction of a number of N matrices'''
     def ensemble(self, ACC, type, N=1000):
@@ -106,8 +104,6 @@ class RMT:
             self.__eigvals_distribution__(eigval[epochs[i]])
         
 
-
-
     def __pr_plots__(self, pr, ipr):
         fig = plt.figure(figsize=(16,5))
         ax1 = fig.add_subplot(121)
@@ -126,22 +122,6 @@ class RMT:
         ax2.set_xlabel('λ')
         ax2.tick_params(labelbottom=False)
         ax2.set_title('Inverse Participation Ratios')
-        plt.show()
-
-    def __correlation_distribution__(self, corr_values):
-        fig, ax = plt.subplots(figsize=(10,6))
-        ax.hist(np.array(corr_values).flatten(), bins=100, range=(-1,0.99), density= True, alpha=0.1, color='gray')
-        density = stats.gaussian_kde((np.array(corr_values).flatten()))
-        x = np.linspace(-1, 1, 100)
-        ax.plot(x, density(x), '--', linewidth=4, color='cornflowerblue')
-        ax.vlines(x=np.mean(corr_values), linestyles='dashed', color='red',
-           ymin=0, ymax=density(np.mean(corr_values)), label='Mean: {:.4f}'.format(np.mean(corr_values)))
-        ax.set_xlim([-1,0.99])
-        ax.set_title('Correlation Coefficient Probability Density Function', fontsize=15)
-        ax.set_ylabel('ρ$(C_{ij})$', fontsize=12)
-        ax.set_xlabel('$C_{ij}$', fontsize=12)
-        ax.legend(loc='best', fontsize=10)
-        sns.despine(right=True)
         plt.show()
             
     def __pr_distribution__(self, pr):
