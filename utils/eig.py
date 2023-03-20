@@ -11,7 +11,8 @@ class Eig(Correlation_Analysis):
 
     def __init__(self, corr):
         self.corr_matrices = corr.corr_matrices
-        self.corr_matrix = corr.corr_matrix
+        try: self.corr_matrix = corr.corr_matrix
+        except: pass
         self.eigenvalues = []
         self.corr_values = []
         self._eigenvectors = []
@@ -24,21 +25,28 @@ class Eig(Correlation_Analysis):
         self.pr = participation_ratios(np.array(self._eigenvectors))
 
     '''Plots for only the the selected epochs'''
-    def plots_per_epoch(self, epochs=None, epoch_dates=None):
+    def plots_per_epoch(self, epochs, epoch_dates=None):
         ipr = 1 / self.pr
-        eigvals = self.eigenvalues
-        for i in range(len(self.corr_matrices)):
+        for i in range(len(epochs)):
             print('Epoch: {}     Date Period: {} - {}'.format(str(epochs[i]+1),
-                                        str(epoch_dates[int(epochs[i])][0]),
-                                        str(epoch_dates[int(epochs[i])][-1])))
+                                        str(epoch_dates[int(epochs[i])][0]), str(epoch_dates[int(epochs[i])][-1])))
             '''Participation ratios plots per epoch'''
             self.pr_plots(self.pr[i], ipr[i])
+        for i in range(len(epochs)):
+            print('Epoch: {}     Date Period: {} - {}'.format(str(epochs[i]+1),
+                                        str(epoch_dates[int(epochs[i])][0]), str(epoch_dates[int(epochs[i])][-1])))
             '''Probability density distribution of correlation coefficients per epoch'''
             self.correlation_distribution(self.corr_values[i])
+        for i in range(len(epochs)):
+            print('Epoch: {}     Date Period: {} - {}'.format(str(epochs[i]+1),
+                                        str(epoch_dates[int(epochs[i])][0]), str(epoch_dates[int(epochs[i])][-1])))
             '''Probability density distribution of particiátion ratios per epoch'''
             self.pr_distribution(self.pr[i])
+        for i in range(len(epochs)):
+            print('Epoch: {}     Date Period: {} - {}'.format(str(epochs[i]+1),
+                                        str(epoch_dates[int(epochs[i])][0]), str(epoch_dates[int(epochs[i])][-1])))
             '''Probability density distribution of eigenvalues per epoch'''
-            self.eigvals_distribution(eigvals[i])
+            self.eigvals_distribution(self.eigenvalues[i])
     
     '''PR and IPR plots'''
     def pr_plots(self, pr, ipr):

@@ -67,16 +67,12 @@ class RMT:
         Case with the random data is correlated with a correlation value, the average 
         correlation coefficient of an analogue real matrix.
         '''
-        
         for i in range(N):
             M = self.__cwoe_ensemble__(ACC[i], n, t)
             val, vec = scipy.linalg.eig(M)
             eigval.append(val)
             for j in range(n):
                 pr[i,j] = 1/((np.power(np.absolute(vec[:,j]),4).sum()))
-        
-        
-        
         '''
         Create N-random matrices with shape (n,t), where N is the number of
         epochs, and get their eigenvalues
@@ -104,7 +100,6 @@ class RMT:
             print('Epoch: {}     ACC: {:.4f}'.format(str(epochs[i]+1), ACC[epochs[i]]))
             '''Participation ratios plots per epoch'''
             self.__pr_plots__(pr[epochs[i]], ipr[epochs[i]])
-
             '''Probability density distribution of particiátion ratios per epoch'''
             self.__pr_distribution__(pr[epochs[i]])
             '''Probability density distribution of eigenvalues per epoch'''

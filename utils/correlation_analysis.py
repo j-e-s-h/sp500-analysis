@@ -27,10 +27,10 @@ class Correlation_Analysis:
         elif self.corr_coeff == 'spearman':
             C, _ = self.__spearman_corr__(row_returns(self.data_matrix))
         elif self.corr_coeff == 'distance':
-            try: 
+            try:
                 C = np.loadtxt('../data/processed/dcc/dcc_corr_matrix.txt')
                 print('Distance correlation matrix loaded.')
-            except: 
+            except:
                 print('There is no distance correlartion matrix saved. \n Calculating...')
                 start_time = time.time()
                 M = row_returns(self.data_matrix)
@@ -91,7 +91,7 @@ class Correlation_Analysis:
         * dates of all the epochs
     '''
     def relevant_correlation_matrices(self, relevant_epochs):
-        dates_epochs = np.array_split(self.dates, 130)
+        relevant_epochs_dates = np.array_split(self.dates, 130)
         data_epochs = np.array_split(row_returns(self.data_matrix), 130, axis=1)
         selected_epochs = [data_epochs[x] for x in relevant_epochs]
         dims = (selected_epochs[0].shape[0],selected_epochs[0].shape[0])
@@ -103,16 +103,26 @@ class Correlation_Analysis:
             for i in range(len(selected_epochs)):
                 C[i,:,:], _ = self.__spearman_corr__(selected_epochs[i])
         elif self.corr_coeff == 'distance':
-            start_time = time.time()
-            for i in range(len(selected_epochs)):
-                for j in range(dims[0]):
-                    for k in range(dims[0]):
-                        C[i][j][k] = self.__distance_corr__(selected_epochs[i][j],
-                                                        selected_epochs[i][k])        
-                print(i, ": --- %s seconds ---" % (time.time() - start_time))
+            try:
+                loaded_arr = np.loadtxt('../data/processed/dcc/dcc_corr_matrices.txt')
+                dcc_matrices = loaded_arr.reshape(loaded_arr.shape[0], loaded_arr.shape[1] // 374, 374)
+                C = np.zeros((len(relevant_epochs),dcc_matrices.shape[-1], dcc_matrices.shape[-1]))
+                for i in range(len(relevant_epochs)):
+                    C[i,:,:] = dcc_matrices[relevant_epochs[i]]
+                print('Relevant distance correlation matrices loaded.')
+            except:
+                print('There are no distance correlartion matrices saved. \n Calculating...')
+                start_time = time.time()
+                for i in range(len(selected_epochs)):
+                    for j in range(dims[0]):
+                        for k in range(dims[0]):
+                            C[i][j][k] = self.__distance_corr__(selected_epochs[i][j],
+                                                            selected_epochs[i][k])        
+                    print(i, ": --- %s seconds ---" % (time.time() - start_time))
         else: raise ValueError(f'The only compatible correlation coefficients are: pearson, spearman, distance.')
-        self.__selected_heatmaps__(C, dates_epochs, relevant_epochs)
-        return C, dates_epochs
+        self.__selected_heatmaps__(C, relevant_epochs_dates, relevant_epochs)
+        self.corr_matrices = C
+        return C, relevant_epochs_dates
                         
                         
     def __pearson_corr__(self, M):

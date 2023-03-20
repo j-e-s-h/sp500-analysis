@@ -19,13 +19,15 @@ class Moments(Correlation_Analysis):
     Create a dataframe with the four first moments of each epoch in the correlation 
     matrices array
     '''
-    def get_dataframe(self):
+    def get_dataframe(self, C=None):
+        if C is None: corr_matrices = self.corr_matrices
+        else: corr_matrices = C
         acc = []
         std = []
         skew = []
         kurt = []
-        for i in range(len(self.corr_matrices)):
-            moments = self.__moments__(self.corr_matrices[i])
+        for i in range(len(corr_matrices)):
+            moments = self.__moments__(corr_matrices[i])
             acc.append(moments[0])
             std.append(moments[1])
             skew.append(moments[2])
@@ -122,23 +124,10 @@ class Moments(Correlation_Analysis):
 
 
     def __matrix_mean__(self, M):
-        count = 0
-        xsum = 0
-        for i in range(len(M)):
-            for j in range(i+1, len(M)):
-                xsum = xsum + M[i,j]
-                count +=1
-        return xsum/count
+        return M.mean()
 
     def __matrix_std__(self, M):
-        mean = self.__matrix_mean__(M)
-        xsum = 0
-        count = 0
-        for i in range(len(M)):
-            for j in range(i+1, len(M)):
-                xsum = xsum + (M[i,j] - mean)**2
-                count += 1
-        return np.sqrt(xsum/count)
+        return M.std()
  
     def __moments__(self, M):
         mean = self.__matrix_mean__(M)
