@@ -67,6 +67,7 @@ class Eig(Correlation_Analysis):
         ax2.set_xlabel('λ')
         ax2.tick_params(labelbottom=False)
         ax2.set_title('Inverse Participation Ratios')
+        fig.tight_layout(w_pad=1)
         plt.show()
 
     '''Distribution of the accumulated correlation coefficients of all the matrices'''
@@ -143,6 +144,7 @@ class Eig(Correlation_Analysis):
         ipr = 1 / pr
         self.__eig_vs_pr__(eigvals, pr)
         self.__eig_vs_ipr__(eigvals, ipr)
+
 
     def __eig_vs_pr__(self, eigvals, pr):
         fig = plt.figure(figsize=(8,5))
