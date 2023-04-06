@@ -2,7 +2,7 @@
 
 By: J. E. Salgado-Hernández
 
-Undergraduate project thesis realated to the analysis of the S&P500 Index.
+Undergraduate project thesis related to the analysis of the S&P500 Index.
 
 ## License
 
